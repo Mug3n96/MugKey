@@ -1,0 +1,16 @@
+{
+  "name": "MugKey",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "My version of a monitor-keyboard.",
+  "background": {
+    "scripts": []
+  },
+  "content_scripts": [
+    {
+      "js": ["dom_injector.js"],
+      "matches": ["http://*/*", "https://*/*"]
+    }
+  ],
+  "permissions": ["tabs", "http://*/*", "debugger"]
+}
