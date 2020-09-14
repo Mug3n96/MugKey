@@ -1,26 +1,98 @@
 document.querySelector("head").append(
   `<script src="https://kit.fontawesome.com/6e0b41a7b2.js"
-      crossorigin="anonymous"
+        crossorigin="anonymous"
       ></script>`
 );
 
-const bodyElement = document.querySelector("html");
+const HTMLElement = document.querySelector("html");
 const keyboardContainerElement = document.createElement("div");
+const keyboardToggleButton = document.createElement("div");
+let isOpen = false;
 
 let fieldToWrite = null;
 
-bodyElement.append(keyboardContainerElement);
-buildKeyboard(keyboardContainerElement);
+const renderKeyboard = (pos) => {
+  if (!isOpen) {
+    HTMLElement.appendChild(keyboardToggleButton);
+    buildKeyboardToggleButton(keyboardToggleButton, pos);
+  } else {
+    HTMLElement.appendChild(keyboardContainerElement);
+    buildKeyboard(keyboardContainerElement);
+  }
+};
 
-bodyElement.addEventListener("click", (e) => {
+const clearKeyboard = () => {
+  if (HTMLElement.contains(keyboardContainerElement)) {
+    HTMLElement.removeChild(keyboardContainerElement);
+    keyboardContainerElement.innerHTML = null;
+  }
+
+  if (HTMLElement.contains(keyboardToggleButton)) {
+    HTMLElement.removeChild(keyboardToggleButton);
+    keyboardContainerElement.innerHTML = null;
+  }
+};
+
+HTMLElement.addEventListener("click", (e) => {
   if (
-    e.target.getAttribute("type") === "button" ||
-    e.target.tagName !== ("TEXTAREA" && "INPUT")
-  )
+    e.target.getAttribute("button-type") === "mugkey-button" ||
+    e.target.getAttribute("type") === "mugkey-keyboard-container"
+  ) {
     return;
+  }
+  // if (
+  //   e.target.getAttribute("type") === "button" ||
+  //   e.target.tagName !== ("TEXTAREA" && "INPUT")
+  // )
+  //   return;
+
+  clearKeyboard();
+
   fieldToWrite = e.target;
-  console.log(fieldToWrite);
+  console.log(fieldToWrite.tagName);
+  console.log;
+  if (
+    (fieldToWrite.tagName === "INPUT" || fieldToWrite.tagName === "TEXTAREA") &&
+    fieldToWrite.getAttribute("type") !== "button"
+  ) {
+    renderKeyboard({ x: e.clientX, y: e.clientY });
+  } else {
+    isOpen = false;
+  }
 });
+
+function buildKeyboardToggleButton(container, pos) {
+  console.log(pos);
+  // style container
+  const containerDefaultStyle = {
+    position: "fixed",
+    top: pos.y + "px",
+    left: pos.x + "px",
+    borderRadius: "50%",
+    background: "rgba(0, 0, 0, 0.2)",
+    fontSize: "1.4rem",
+    width: "3rem",
+    height: "3rem",
+    margin: "1rem",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: "1000000000",
+  };
+  container.setAttribute("type", "button");
+  container.setAttribute("button-type", "mugkey-button");
+
+  container.addEventListener("click", () => {
+    isOpen = true;
+
+    clearKeyboard();
+    renderKeyboard();
+  });
+
+  container.innerText = "⌘";
+
+  Object.assign(container.style, containerDefaultStyle);
+}
 
 function buildKeyboard(container) {
   // style container
@@ -31,7 +103,6 @@ function buildKeyboard(container) {
     width: "100vw",
     height: "40vh",
     display: "flex",
-    flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
     background: "rgba(0, 0, 0, 0.2)",
@@ -39,11 +110,14 @@ function buildKeyboard(container) {
     zIndex: "1000000000",
   };
 
+  container.setAttribute("type", "mugkey-keyboard-container");
+
   Object.assign(container.style, containerDefaultStyle);
 
   const keyboardElement = document.createElement("div");
   // style keyboard
   const keyboardDefaultStyle = {
+    position: "relative",
     height: "100%",
     width: "50%",
     minWidth: "500px",
@@ -55,7 +129,28 @@ function buildKeyboard(container) {
 
   Object.assign(keyboardElement.style, keyboardDefaultStyle);
 
+  // build close keyboard button
+
+  const closeElement = document.createElement("div");
+  // style keyboard
+  const closeElementStyle = {
+    background: "rgba(0, 0, 0, 0.6)",
+    color: "white",
+    borderRadius: "50%",
+    display: "flex",
+    marginLeft: "2rem",
+    marginTop: "-1rem",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    width: "2.5rem",
+    height: "2.5rem"
+  };
+
+  Object.assign(closeElement.style, closeElementStyle);
+  closeElement.innerText = "×";
   container.appendChild(keyboardElement);
+  container.appendChild(closeElement);
 
   const keyboardMap1 = [
     [
@@ -110,7 +205,7 @@ function buildKeyboard(container) {
 }
 
 function mapToElements(map, keyboardElement) {
-  keyboardElement.innerHTML = "";
+  keyboardElement.innerHTML = null;
   map.forEach((row) => {
     const singleWidth = keyboardElement.clientWidth / 11;
     const singleHeight = keyboardElement.clientHeight / map.length;
@@ -122,10 +217,11 @@ function mapToElements(map, keyboardElement) {
       alignItems: "center",
     };
     Object.assign(container.style, containerDefaultStyle);
+    container.setAttribute("type", "mugkey-keyboard-container");
     row.forEach((elem) => {
       const buttonElement = document.createElement("button");
       buttonElement.setAttribute("type", "button");
-      buttonElement.setAttribute("button-type", "vb");
+      buttonElement.setAttribute("button-type", "mugkey-button");
       if (elem.icon) buttonElement.innerHTML = `<i class="${elem.icon}"></i>`;
       else buttonElement.innerHTML = elem.value;
 

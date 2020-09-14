@@ -8,9 +8,9 @@
   },
   "content_scripts": [
     {
-      "js": ["dom_injector.js"],
+      "js": ["dom_injector.js", "fontawesome.js"],
       "matches": ["http://*/*", "https://*/*"]
     }
   ],
-  "permissions": ["tabs", "http://*/*", "debugger"]
+  "permissions": ["tabs", "http://*/*"]
 }
